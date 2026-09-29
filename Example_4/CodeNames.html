@@ -215,21 +215,30 @@
     min-height: 0;
 
     padding:
-      clamp(10px, 2vw, 24px);
+      clamp(10px, 2vw, 20px);
 
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .board {
+  .board-wrapper {
     width: min(96vw, 1100px);
 
     height:
       min(
-        calc(100vh - 95px),
-        800px
+        calc(100vh - 92px),
+        820px
       );
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .board {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
 
     display: grid;
 
@@ -241,6 +250,25 @@
 
     gap:
       clamp(8px, 1.2vw, 16px);
+  }
+
+  .empty-board-message {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+
+  .board-footer {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: 6px;
   }
 
   /*
@@ -374,72 +402,170 @@
   }
 
   /* =========================================================
-     SPYMASTER OVERLAY
+     TEACHER KEY BUTTON & TEACHER KEY VIEW
      ========================================================= */
 
-  /*
-    The overlay does NOT replace the gold card border.
-    Instead, it adds a subtle colored inner glow.
-  */
+  .teacher-key-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
 
-  .peek-red {
-    box-shadow:
-      inset 0 0 0 3px
-        rgba(255, 74, 74, .38),
-      0 4px 9px rgba(0,0,0,.30);
+    border: 1px solid rgba(57, 67, 78, 0.7);
+    border-radius: 6px;
+
+    background: rgba(26, 32, 39, 0.8);
+    color: var(--muted);
+
+    font-size: .78rem;
+    font-weight: 550;
+    letter-spacing: .01em;
+
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+      transform .12s,
+      background .15s,
+      border-color .15s,
+      color .15s;
   }
 
-  .peek-blue {
-    box-shadow:
-      inset 0 0 0 3px
-        rgba(77, 156, 255, .40),
-      0 4px 9px rgba(0,0,0,.30);
+  .teacher-key-button:hover {
+    transform: translateY(-1px);
+    background: #2b343e;
+    border-color: #596572;
+    color: var(--text);
   }
 
-  .peek-neutral {
-    box-shadow:
-      inset 0 0 0 3px
-        rgba(174, 183, 192, .40),
-      0 4px 9px rgba(0,0,0,.30);
+  .teacher-key-arrow {
+    font-size: .85rem;
+    line-height: 1;
+    transition: transform .12s ease;
   }
 
-  .peek-assassin {
-    box-shadow:
-      inset 0 0 0 4px #050505,
-      0 4px 9px rgba(0,0,0,.30);
+  .teacher-key-button:hover .teacher-key-arrow {
+    transform: translate(1px, -1px);
   }
 
-  .peek-dot {
+  .teacher-key-button:focus-visible {
+    outline: 2px solid rgba(77, 150, 255, .55);
+    outline-offset: 1px;
+  }
+
+  /* Teacher Key Window Specific Styles */
+  .teacher-key-view .teacher-key-button {
     display: none;
-
-    position: absolute;
-    left: 7px;
-    top: 7px;
-
-    width: 9px;
-    height: 9px;
-
-    border-radius: 50%;
   }
 
-  .spymaster-mode .peek-dot {
+  .teacher-key-view #settingsButton {
+    display: none;
+  }
+
+  .teacher-key-pill-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 750;
+    letter-spacing: .02em;
+    user-select: none;
+  }
+
+  .role-pill.red {
+    background: rgba(213, 47, 47, 0.22);
+    border: 1px solid var(--red);
+    color: #ff7e7e;
+  }
+
+  .role-pill.blue {
+    background: rgba(23, 105, 194, 0.22);
+    border: 1px solid var(--blue);
+    color: #72b0f4;
+  }
+
+  .role-pill.neutral {
+    background: rgba(213, 217, 222, 0.15);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .role-pill.assassin {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #5a6470;
+    color: #f4f7fa;
+  }
+
+  /* Full color cards in teacher key tab */
+  .teacher-key-view .card {
+    cursor: pointer;
+  }
+
+  .teacher-key-view .card.red {
+    background: var(--red);
+    border-color: var(--gold-bright);
+    color: white;
+  }
+
+  .teacher-key-view .card.blue {
+    background: var(--blue);
+    border-color: var(--gold-bright);
+    color: white;
+  }
+
+  .teacher-key-view .card.neutral {
+    background: var(--neutral);
+    border-color: var(--gold-bright);
+    color: var(--neutral-text);
+  }
+
+  .teacher-key-view .card.neutral .word {
+    text-decoration: none;
+  }
+
+  .teacher-key-view .card.assassin {
+    background: var(--assassin);
+    border-color: var(--gold-bright);
+    color: white;
+  }
+
+  .teacher-key-view .card.assassin .assassin-warning {
     display: block;
   }
 
-  .peek-red .peek-dot {
-    background: #ff3030;
+  /* Status tag on card when revealed / guessed */
+  .card-revealed-tag {
+    display: none;
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: clamp(.60rem, .9vw, .72rem);
+    font-weight: 800;
+    letter-spacing: .04em;
+    background: rgba(0, 0, 0, 0.65);
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.4);
+    pointer-events: none;
   }
 
-  .peek-blue .peek-dot {
-    background: #3187ff;
+  .teacher-key-view .card.is-revealed .card-revealed-tag {
+    display: block;
   }
 
-  .peek-neutral .peek-dot {
-    background: #a0a8b0;
-  }
-
-  .peek-assassin .peek-dot {
-    background: #050505;
+  .teacher-key-view .card.is-revealed {
+    opacity: 0.62;
+    filter: saturate(0.85);
   }
 
   /* =========================================================
@@ -923,25 +1049,32 @@
 
   <main class="board-area">
 
-    <div
-      id="board"
-      class="board"
-      aria-label="Vocabulary Codenames board"
-    >
+    <div class="board-wrapper">
 
       <div
-        style="
-          grid-column:1 / -1;
-          grid-row:1 / -1;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          text-align:center;
-          color:#aab4bf;
-          font-size:1.1rem;
-        "
+        id="board"
+        class="board"
+        aria-label="Vocabulary Codenames board"
       >
-        Open settings to enter vocabulary and generate a game.
+
+        <div class="empty-board-message">
+          Open settings to enter vocabulary and generate a game.
+        </div>
+
+      </div>
+
+      <div class="board-footer">
+
+        <button
+          id="teacherKeyButton"
+          class="teacher-key-button"
+          type="button"
+          title="Open teacher key in a new tab"
+          aria-label="Open teacher key window in a new tab"
+        >
+          Teacher key window <span class="teacher-key-arrow" aria-hidden="true">↗</span>
+        </button>
+
       </div>
 
     </div>
@@ -1035,43 +1168,6 @@ diffusion"
     </div>
 
 
-    <div class="settings-section">
-
-      <div class="settings-row">
-
-        <div>
-
-          <strong>
-            Spymaster Color Overlays
-          </strong>
-
-          <small>
-            Subtly indicate hidden roles without changing
-            the card's gold frame.
-          </small>
-
-        </div>
-
-
-        <label
-          class="toggle"
-          aria-label="Show Spymaster Color Overlays"
-        >
-
-          <input
-            id="peekToggle"
-            type="checkbox"
-          >
-
-          <span class="slider"></span>
-
-        </label>
-
-      </div>
-
-    </div>
-
-
     <div
       id="modalStatus"
       class="status"
@@ -1159,8 +1255,8 @@ const reshuffleButton =
 const modalStatus =
   document.getElementById("modalStatus");
 
-const peekToggle =
-  document.getElementById("peekToggle");
+const teacherKeyButton =
+  document.getElementById("teacherKeyButton");
 
 const keyCopyButton =
   document.getElementById("keyCopyButton");
@@ -1400,6 +1496,8 @@ function generateGame() {
 
 
   closeModal();
+
+  notifyKeyWindowsOfNewGame();
 }
 
 
@@ -1481,22 +1579,6 @@ function renderBoard() {
       );
 
 
-      const peekDot =
-        document.createElement(
-          "span"
-        );
-
-
-      peekDot.className =
-        "peek-dot";
-
-
-      peekDot.setAttribute(
-        "aria-hidden",
-        "true"
-      );
-
-
       card.appendChild(
         word
       );
@@ -1505,16 +1587,10 @@ function renderBoard() {
         warning
       );
 
-      card.appendChild(
-        peekDot
-      );
-
-
       card.addEventListener(
         "click",
         () => revealCard(index)
       );
-
 
       board.appendChild(
         card
@@ -1522,9 +1598,6 @@ function renderBoard() {
 
     }
   );
-
-
-  updatePeekOverlay();
 }
 
 
@@ -1552,60 +1625,462 @@ function revealCard(index) {
 
 
   renderBoard();
+
+  notifyKeyWindowsOfReveal(index);
 }
 
 
 /* ============================================================
-   SPYMASTER OVERLAY
+   TEACHER KEY WINDOW
    ============================================================ */
 
-function updatePeekOverlay() {
+let openKeyWindows = [];
 
-  const enabled =
-    peekToggle.checked;
+function openTeacherKeyWindow() {
 
+  if (
+    currentCards.length !== 16
+  ) {
 
-  board.classList.toggle(
-    "spymaster-mode",
-    enabled
-  );
-
-
-  const boardCards =
-    board.querySelectorAll(
-      ".card"
+    showToast(
+      "Generate a game first."
     );
 
-
-  boardCards.forEach(
-    (element, index) => {
-
-      const data =
-        currentCards[index];
+    return;
+  }
 
 
-      element.classList.remove(
-        "peek-red",
-        "peek-blue",
-        "peek-neutral",
-        "peek-assassin"
+  const keyData =
+    encodeURIComponent(
+      JSON.stringify(currentCards)
+    );
+
+  const baseUrl =
+    window.location.href.split("#")[0];
+
+  const keyUrl =
+    `${baseUrl}#key=${keyData}`;
+
+
+  try {
+
+    const keyWin =
+      window.open(
+        keyUrl,
+        "_blank"
       );
 
 
+    if (keyWin) {
+
+      openKeyWindows.push(keyWin);
+
+    } else {
+
+      showToast(
+        "Please allow popups to open the Teacher Key window."
+      );
+
+    }
+
+  } catch (err) {
+
+    showToast(
+      "Unable to open Teacher Key window."
+    );
+
+  }
+}
+
+
+function notifyKeyWindowsOfReveal(index) {
+
+  openKeyWindows =
+    openKeyWindows.filter(
+      win => {
+        try {
+          return win && !win.closed;
+        } catch (e) {
+          return false;
+        }
+      }
+    );
+
+
+  openKeyWindows.forEach(
+    win => {
+      try {
+        if (
+          typeof win.updateRevealedStatus ===
+            "function"
+        ) {
+          win.updateRevealedStatus(index, true);
+        }
+      } catch (e) {}
+    }
+  );
+}
+
+
+function notifyKeyWindowsOfNewGame() {
+
+  openKeyWindows =
+    openKeyWindows.filter(
+      win => {
+        try {
+          return win && !win.closed;
+        } catch (e) {
+          return false;
+        }
+      }
+    );
+
+
+  const keyData =
+    encodeURIComponent(
+      JSON.stringify(currentCards)
+    );
+
+  const newHash =
+    `#key=${keyData}`;
+
+
+  openKeyWindows.forEach(
+    win => {
+      try {
+        if (
+          typeof win.loadNewCards ===
+            "function"
+        ) {
+          win.loadNewCards(currentCards);
+        } else {
+          win.location.hash = newHash;
+        }
+      } catch (e) {}
+    }
+  );
+}
+
+
+window.syncCardFromKey = function(index, revealed) {
+
+  if (currentCards[index]) {
+
+    currentCards[index].revealed =
+      revealed;
+
+    renderBoard();
+
+  }
+};
+
+
+function renderTeacherKeyBoard() {
+
+  board.innerHTML = "";
+
+
+  currentCards.forEach(
+    (cardData, index) => {
+
+      const card =
+        document.createElement(
+          "button"
+        );
+
+
+      card.type =
+        "button";
+
+
+      card.className =
+        `card ${cardData.role}`;
+
+
+      if (cardData.revealed) {
+        card.classList.add(
+          "is-revealed"
+        );
+      }
+
+
+      card.setAttribute(
+        "aria-label",
+        `Teacher Key Card ${index + 1}: ${cardData.word} (${cardData.role}${cardData.revealed ? ', already guessed' : ''})`
+      );
+
+
+      const word =
+        document.createElement(
+          "span"
+        );
+
+
+      word.className =
+        "word";
+
+
+      word.textContent =
+        cardData.word;
+
+
+      const warning =
+        document.createElement(
+          "span"
+        );
+
+
+      warning.className =
+        "assassin-warning";
+
+
+      warning.textContent =
+        "!";
+
+
+      warning.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+
+      const revealedTag =
+        document.createElement(
+          "span"
+        );
+
+
+      revealedTag.className =
+        "card-revealed-tag";
+
+
+      revealedTag.textContent =
+        "✓ GUESSED";
+
+
+      revealedTag.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+
+      card.appendChild(word);
+      card.appendChild(warning);
+      card.appendChild(revealedTag);
+
+
+      card.addEventListener(
+        "click",
+        () => {
+          cardData.revealed =
+            !cardData.revealed;
+
+          card.classList.toggle(
+            "is-revealed",
+            cardData.revealed
+          );
+
+          card.setAttribute(
+            "aria-label",
+            `Teacher Key Card ${index + 1}: ${cardData.word} (${cardData.role}${cardData.revealed ? ', already guessed' : ''})`
+          );
+
+          if (
+            window.opener &&
+            !window.opener.closed
+          ) {
+            try {
+              if (
+                typeof window.opener.syncCardFromKey ===
+                  "function"
+              ) {
+                window.opener.syncCardFromKey(
+                  index,
+                  cardData.revealed
+                );
+              }
+            } catch (e) {}
+          }
+        }
+      );
+
+
+      board.appendChild(card);
+    }
+  );
+}
+
+
+function initTeacherKeyView(hashPayload) {
+
+  document.body.classList.add(
+    "teacher-key-view"
+  );
+
+  document.title =
+    "Teacher Key — Vocabulary Codenames";
+
+
+  const titleEl =
+    document.querySelector(".title");
+
+  if (titleEl) {
+    titleEl.textContent =
+      "Vocabulary Codenames";
+  }
+
+
+  const subtitleEl =
+    document.querySelector(".subtitle");
+
+  if (subtitleEl) {
+    subtitleEl.textContent =
+      "Teacher Key (Secret Tab — Do Not Screen Share)";
+
+    subtitleEl.style.color =
+      "var(--gold-bright)";
+
+    subtitleEl.style.fontWeight =
+      "700";
+  }
+
+
+  try {
+
+    currentCards =
+      JSON.parse(
+        decodeURIComponent(hashPayload)
+      );
+
+  } catch (err) {
+
+    currentCards = [];
+
+  }
+
+
+  const topActions =
+    document.querySelector(".top-actions");
+
+  if (topActions) {
+
+    topActions.innerHTML = "";
+
+
+    const pillStrip =
+      document.createElement("div");
+
+    pillStrip.className =
+      "teacher-key-pill-strip";
+
+    pillStrip.innerHTML = `
+      <span class="role-pill red" title="5 Red Cards">🔴 5 Red</span>
+      <span class="role-pill blue" title="5 Blue Cards">🔵 5 Blue</span>
+      <span class="role-pill neutral" title="5 Neutral Cards">⬜ 5 Neutral</span>
+      <span class="role-pill assassin" title="1 Assassin Card">💀 1 Assassin</span>
+    `;
+
+    topActions.appendChild(pillStrip);
+
+
+    const keyCopyBtn =
+      document.createElement("button");
+
+    keyCopyBtn.className =
+      "key-copy-button";
+
+    keyCopyBtn.type =
+      "button";
+
+    keyCopyBtn.title =
+      "Copy complete spymaster key";
+
+    keyCopyBtn.innerHTML = `
+      <span class="key-icon" aria-hidden="true">🔑</span>
+      <span>Key Copy</span>
+    `;
+
+    keyCopyBtn.addEventListener(
+      "click",
+      copyMasterKey
+    );
+
+    topActions.appendChild(keyCopyBtn);
+
+  }
+
+
+  window.updateRevealedStatus =
+    function(index, revealed) {
+
+      if (currentCards[index]) {
+
+        currentCards[index].revealed =
+          revealed;
+
+        const cards =
+          board.querySelectorAll(".card");
+
+        if (cards[index]) {
+
+          cards[index].classList.toggle(
+            "is-revealed",
+            revealed
+          );
+
+          cards[index].setAttribute(
+            "aria-label",
+            `Teacher Key Card ${index + 1}: ${currentCards[index].word} (${currentCards[index].role}${revealed ? ', already guessed' : ''})`
+          );
+
+        }
+
+      }
+
+    };
+
+
+  window.loadNewCards =
+    function(newCards) {
+
+      currentCards =
+        JSON.parse(
+          JSON.stringify(newCards)
+        );
+
+      renderTeacherKeyBoard();
+
+    };
+
+
+  window.addEventListener(
+    "hashchange",
+    () => {
+
       if (
-        enabled &&
-        data &&
-        !data.revealed
+        window.location.hash.startsWith("#key=")
       ) {
 
-        element.classList.add(
-          `peek-${data.role}`
-        );
+        try {
+
+          currentCards =
+            JSON.parse(
+              decodeURIComponent(
+                window.location.hash.slice(5)
+              )
+            );
+
+          renderTeacherKeyBoard();
+
+        } catch (e) {}
 
       }
 
     }
   );
+
+
+  renderTeacherKeyBoard();
 }
 
 
@@ -2044,10 +2519,12 @@ reshuffleButton.addEventListener(
 );
 
 
-peekToggle.addEventListener(
-  "change",
-  updatePeekOverlay
-);
+if (teacherKeyButton) {
+  teacherKeyButton.addEventListener(
+    "click",
+    openTeacherKeyWindow
+  );
+}
 
 
 keyCopyButton.addEventListener(
@@ -2060,12 +2537,13 @@ keyCopyButton.addEventListener(
    INITIAL STATE
    ============================================================ */
 
-updateWordCounter();
-
-updatePeekOverlay();
+if (window.location.hash.startsWith("#key=")) {
+  initTeacherKeyView(window.location.hash.slice(5));
+} else {
+  updateWordCounter();
+}
 
 </script>
 
 </body>
 </html>
-```
