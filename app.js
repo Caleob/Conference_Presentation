@@ -11,56 +11,64 @@ function copy(txt){
   function fb(){var a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){toast('Press Ctrl+C to copy')}a.remove()}
 }
 
-/* ---------- App data ---------- */
-var APPS=[
-{n:1,name:'EduSpin',full:'EduSpin Wheel Picker',slide:4,file:'Example_1/WheelPicker.html',
- what:'A colorful digital spinning wheel that runs in your browser. Use one wheel to pick at random, or two side by side to pair or compare ideas.',
- use:['Random Student Caller: paste your roster and spin.','Fair Turns: remove names after they are picked.','Side-by-Side Compare: figures on Wheel 1, events on Wheel 2.','100% Privacy: no account, and the roster never leaves your computer.'],
- learn:['Your browser is a free player: a .html file opens and works instantly.','No missing parts: sounds and shapes are generated, not downloaded.','You can change how it works: ask in plain English for two wheels.'],
- prompt:'Act as an educational web tool maker.\nBuild a random name picker for my virtual classroom students.\nA spinning wheel with tick sounds, an option to remove names after they are picked, and a two-wheel side-by-side mode.\nKeep everything in one .html file. Make sounds with the browser, draw with code, no downloads.\nKeep the roster private on my computer.',
- tree:[['WheelPicker.html','The whole app in one file'],['WheelPicker_Prompt.txt','The wish that built it'],['README.md','Teacher-friendly guide']]},
-{n:2,name:'Elastic Timeline',full:'Elastic Timeline',slide:5,file:'Example_3/Elastic_Timeline.html',
- what:'Cards float at the bottom of the screen. Drag them onto a timeline bar and they slide apart to make room. "Check Timeline" lights them up.',
- use:['Chronology review during screen shares.','Wordle-style feedback: green is correct, yellow is out of order.','Edit List: paste any ordered events for an instant new game.','Confetti when the sequence is solved.'],
- learn:['Describe movement in normal words: "float gently like in water".','Say "one standalone file, no outside links" so school filters cannot break it.','Borrow familiar game rules, like Wordle colors.'],
- prompt:'Act as an educational web tool maker.\nBuild a timeline game for my history students.\nUnplaced cards float gently like they are in water. Students drag cards onto a timeline bar and neighbors slide apart to make room. A Check button turns correct cards green and misplaced cards yellow. Confetti on a full solve. An Edit List button accepts pasted events.\nKeep everything in one standalone .html file with no outside links.',
- tree:[['Elastic_Timeline.html','One file: cards, physics, confetti'],['Elastic_Timeline_Prompt.txt','The wish'],['README.md','Guide']]},
-{n:3,name:'Vocabulary Codenames',full:'Vocabulary Codenames',slide:6,file:'Example_4/CodeNames.html',
- what:'A vocabulary review game based on Codenames. Paste 16 or more words and get a 4-by-4 grid with hidden team assignments.',
- use:['Red Team vs Blue Team in a live class or breakout rooms.','Copy Red Key / Copy Blue Key buttons for Spymaster chat messages.','Click cards to reveal Red, Blue, Neutral, or the Black trap card.','Teacher Peek mode shows subtle borders.'],
- learn:['Tell the AI about your real virtual teaching annoyances; it builds the shortcut.','No images needed: cards and glows come from code.','No accounts or logins. Paste, generate, play.'],
- prompt:'Act as an educational web tool maker.\nBuild a Codenames-style vocabulary game for my class.\nI paste 16+ words and get a 4x4 grid with red, blue, neutral, and one black card. Add a button to copy each team\'s secret words for pasting in Zoom or Teams chat, and a teacher peek toggle.\nOne .html file, no outside resources, no data leaves my computer.',
- tree:[['CodeNames.html','One file: grid, keys, peek mode'],['CodeNames_Prompt.txt','The wish'],['README.md','Guide']]},
-{n:4,name:'Rotate & Relate',full:'Rotate & Relate (Geometry Sandbox)',slide:7,file:'Example_5/Elements_On_Screen.html',
- what:'A geometry manipulative for similar right triangles. Connect matching sides with colored cords, then watch the triangles lift, flip, and rotate to line up.',
- use:['Make invisible math visible on a shared screen.','Drag red, blue, and yellow cords between corresponding sides.','The "Aha!" animation shows whether cords match or clash.','New Triangle gives endless randomized practice.'],
- learn:['A clear blueprint (draw, wire, animate) gives commercial-looking results.','Web pages have 3 pieces: Skeleton (.html), Clothes (.css), Brain (.js).','You do not have to settle for locked-down textbook sites.'],
- prompt:'See Example_5/PRD.md. This app was built from a Product Requirements Document: a step-by-step blueprint (draw the triangle, give me 3 colored cords, animate the rotation) rather than a single paragraph.',
- tree:[['Elements_On_Screen.html','The Skeleton: words, buttons, shapes'],['How_It_Looks.css','The Clothes: colors, fonts, dark theme'],['What_It_Does.js','The Brain: math, dragging, animation'],['PRD.md','The blueprint given to the AI']]},
-{n:5,name:'FeedbackFlow',full:'FeedbackFlow (Grading Feedback Builder)',slide:8,file:'Example_2/FeedbackFlow_2.html',note:'Version 1 is FeedbackFlow_1.html.',
- what:'A point-and-click grading assistant. Click rubric levels and quick notes; it writes a warm feedback paragraph you copy in one touch.',
- use:['Speed up grading without sounding like a robot.','One-click common notes like "Please check office hours".','Version 2 totals scores, like 10/12.','Save your rubric to a backup file for next term.'],
- learn:['Apps evolve in stages: V1 was a 0 to 4 rating; V2 came from one follow-up request.','Ask in plain words: "When I click level 3, write this sentence."','Grades never travel over the internet.'],
- prompt:'Wish 1:\nAct as an educational web tool maker. Build a grading tool for my teachers where clicking rubric levels (0 to 4) builds a warm feedback paragraph with a Copy button. One .html file, fully private.\n\nWish 2 (keep everything from Wish 1):\nCan I also change the score numbers, add custom levels, and show a total like Score: 10/12 at the bottom?',
- tree:[['FeedbackFlow_1.html','Version 1: simple 0 to 4 rating'],['FeedbackFlow_2.html','Version 2: custom levels and totals'],['FeedbackFlow_Prompt.txt','Both wishes'],['README.md','Guide']]}
+/* ---------- Cave of Wonders: treasure data ----------
+   PROMPT and LESSON actions are switched off site-wide until the
+   per-app prompt/lesson files exist. Flip these two booleans when ready. */
+var PROMPTS_READY=false, LESSONS_READY=false;
+var TREASURES=[
+{name:'EduSpin Wheel Picker',short:'Random name & pairing wheel',
+ desc:'A colorful spinning wheel for random student calls, or two wheels side by side for compare-and-contrast pairing. Names can be removed after picking, and the roster never leaves your computer.',
+ file:'Example_1/WheelPicker.html'},
+{name:'FeedbackFlow',short:'Click-to-build grading feedback',
+ desc:'A point-and-click rubric tool that turns clicks into a warm feedback paragraph, with an optional score summary. This launches Version 2; Version 1 is FeedbackFlow_1.html.',
+ file:'Example_2/FeedbackFlow_2.html'},
+{name:'Elastic Timeline',short:'Drag-to-order chronology game',
+ desc:'Floating cards drag onto a timeline bar and glow green or yellow to show correct and misplaced events, with confetti on a full solve.',
+ file:'Example_3/Elastic_Timeline.html'},
+{name:'Vocabulary Codenames',short:'Team vocabulary review game',
+ desc:'A Codenames-style 4x4 word grid for Red vs. Blue vocabulary review, with one-click secret-key copying for remote team leaders.',
+ file:'Example_4/CodeNames.html'},
+{name:'Rotate & Relate',short:'Similar-triangles geometry sandbox',
+ desc:'A geometry manipulative where students connect matching triangle sides with colored cords, then watch the triangles lift, flip, and rotate into place.',
+ file:'Example_5/Elements_On_Screen.html'},
+{name:'Transversal Angles',short:'New build — placeholder text',
+ desc:'PLACEHOLDER: guessed only from file names (transversal_angles.html and a PRD) as a draggable practice tool for angles formed by a transversal line. Replace this once the README is written.',
+ file:'Example 6/transversal_angles.html'},
+{name:'Example 7 (untitled game)',short:'New build — placeholder text',
+ desc:'PLACEHOLDER: file names (turret and enemy sound effects, win and pause music) suggest a turret-defense style review game. Replace this once the README is written.',
+ file:'Example 7/index.html'},
+{name:'Hypothesis Testing Tool',short:'New build — placeholder text',
+ desc:'PLACEHOLDER: this folder has several builds of the same tool (React, Tailwind, and plain Vanilla). This treasure launches the Vanilla version since it runs with no build step — edit the file path below if you would rather launch a different variant.',
+ file:'Example 8/Vanilla/index.html'},
+{name:'Example 9',short:'New build — placeholder text',
+ desc:'PLACEHOLDER: only an index.html exists so far, with no README yet. Replace this once you have written it up.',
+ file:'Example 9/index.html'}
 ];
-function appForSlide(s){return APPS.filter(function(a){return a.slide===s})[0]}
+var GEMDEFS='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fef9c3"/><stop offset=".45" stop-color="#fbbf24"/><stop offset="1" stop-color="#7c3aed"/></linearGradient><symbol id="gem" viewBox="0 0 40 44"><polygon points="20,2 36,14 30,42 10,42 4,14" fill="url(#gemg)" stroke="#fff" stroke-opacity=".55" stroke-width="1.2"/><polygon points="20,2 36,14 20,20" fill="#fff" fill-opacity=".35"/><polygon points="4,14 20,20 10,42" fill="#000" fill-opacity=".18"/></symbol></defs></svg>';
+function caveHTML(){
+  return GEMDEFS+'<div class="cave-stage">'+TREASURES.map(function(t,i){
+    return '<button class="gem" data-i="'+i+'" style="--hue:'+(i*40)+'deg;--dur:'+(4.5+i%3*.7)+'s;--delay:'+(i*.3)+'s" aria-label="'+t.name+': '+t.short+'"><svg class="gemi" viewBox="0 0 40 44"><use href="#gem"></use></svg><span class="gname">'+t.name+'</span></button>';
+  }).join('')+'</div><div id="gemCaption" aria-live="polite">Hover or focus a treasure to hear its secret&hellip;</div>';
+}
+function setCap(t){var c=$('#gemCaption');if(c)c.innerHTML='<b>'+t.name+'</b> &mdash; '+t.short}
+function resetCap(){var c=$('#gemCaption');if(c)c.textContent='Hover or focus a treasure to hear its secret\u2026'}
+function lockBtn(label,why){return '<button class="btn" disabled title="'+why+'">&#128274; '+label+'</button>'}
+function openModal(i){
+  var t=TREASURES[i],m=$('#modal');
+  var promptBtn=PROMPTS_READY?'<button class="btn" data-copytxt="'+encodeURIComponent(t.prompt||'')+'">&#128203; View &amp; Copy Prompt</button>':lockBtn('View &amp; Copy Prompt','Coming soon — the prompt file has not been added yet');
+  var lessonBtn=LESSONS_READY?'<button class="btn alt" data-lesson="'+i+'">&#128161; Genie\u2019s Lesson</button>':lockBtn('Genie\u2019s Lesson','Coming soon');
+  m.innerHTML='<div class="mback" data-close="1"></div><div class="mdlg" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mtop"><button class="btn alt" data-close="1">&larr; Back to the Cave</button></div><h3 id="mtitle">'+t.name+'</h3><p>'+t.desc+'</p><div class="mrow">'+promptBtn+'<a class="btn" href="'+encodeURI(t.file)+'" target="_blank" rel="noopener">&#128640; Launch Demo App</a>'+lessonBtn+'</div></div>';
+  m.classList.add('open');document.body.style.overflow='hidden';
+  var back=m.querySelector('.mdlg > *');if(back)back.focus&&back.focus();
+}
+function closeModal(){var m=$('#modal');if(!m.classList.contains('open'))return;m.classList.remove('open');m.innerHTML='';document.body.style.overflow=''}
 
 /* ---------- Slides ---------- */
-var LAMP='<svg viewBox="0 0 200 140" aria-hidden="true"><defs><radialGradient id="g"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient></defs><circle cx="150" cy="40" r="36" fill="url(#g)" opacity=".7"/><path d="M40 100c0-24 24-34 56-34s50 8 56 20l22-26-8 36c-6 14-24 22-70 22-34 0-56-4-56-18z" fill="#f59e0b" stroke="#fbbf24" stroke-width="3"/><rect x="60" y="110" width="80" height="10" rx="4" fill="#b45309"/><g fill="#2dd4bf"><rect x="150" y="14" width="10" height="14" rx="2" transform="rotate(-12 155 21)"/><rect x="172" y="30" width="10" height="14" rx="2" transform="rotate(14 177 37)"/></g><g fill="#a855f7"><rect x="132" y="6" width="9" height="12" rx="2" transform="rotate(8 136 12)"/></g></svg>';
-function showcase(s,title,left,right){
-  var a=appForSlide(s);
-  return '<h2>'+title+'</h2><div class="grid g2"><div class="card"><h3>Classroom Magic</h3><ul>'+left.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div><div class="card glow"><h3>The Genie Lesson</h3>'+right+'<p><a class="btn" href="#app-'+a.n+'">Inspect Blueprint &amp; Prompt</a></p></div></div>';
-}
 var SLIDES=[
 {t:'The Wish and the Lamp',h:function(){return '<div class="hero"><h1>The Classroom Genie: Building Custom Tools Without Code</h1><p>Pearson Virtual Schools Staff Conference. Presenter: Caleob King.</p><div class="card glow" style="max-width:52rem;margin:1.2rem auto"><p>AI is a <b>powerful but overly literal Genie</b>. It can build any educational manipulative you imagine, but it takes every word literally, so you must state your wish clearly.</p></div><p style="color:var(--gold)">Press Space or the right arrow to begin.</p></div>'}},
 {t:'The Three Curses of Ready-Made EdTech',h:function(){return '<h2>The Three Curses of Ready-Made EdTech</h2><div class="grid g3"><div class="card"><h3>The Login Nightmare</h3><p>Lost passwords, account limits, student privacy risks.</p></div><div class="card"><h3>The Cookie-Cutter Trap</h3><p>Generic tools never fit your exact lesson or state standard.</p></div><div class="card"><h3>The Paywall &amp; Firewall</h3><p>Subscriptions expire and school security blocks outside sites.</p></div></div><div class="banner"><b>The Genie\'s Secret:</b> your web browser is already a free, offline projector. Works from your desktop with zero logins, zero accounts, and 100% privacy.</div>'}},
 {t:'Meeting the Genie',h:function(){return '<h2>Meeting the Genie</h2><p>The Genie does not read minds. It executes your exact words.</p><div class="grid g3">'+[['1. Keep it in one house','Everything inside a single standalone .html file.'],['2. No phantom files','Browser-made sounds and code-drawn shapes instead of downloads.'],['3. Protect student privacy','Everything stays in your browser. Nothing goes to outside servers.']].map(function(r){return '<div class="card glow" tabindex="0"><h3>'+r[0]+'</h3><p>'+r[1]+'</p></div>'}).join('')+'</div>'}},
-{t:'App 1: The Spinning Wheel',h:function(){return showcase(4,'App 1: The Spinning Wheel (EduSpin)',['Spin for random student turns with tick sounds.','Dual wheels pair students or compare two ideas.','Names are removed after picking; the roster stays on your computer.'],'<p>Double-clicking an <code>.html</code> file opens it in Chrome or Edge with no internet. You just made your first piece of classroom software.</p>')}},
-{t:'App 2: The Elastic Timeline',h:function(){return showcase(5,'App 2: The Elastic Timeline',['Cards bob at the bottom; drag them onto the timeline and neighbors slide apart.','Check Timeline: green is correct, yellow is misplaced.','Confetti on a full solve.'],'<p>Describe physical sensations in everyday language: <i>"make unplaced cards float gently like they are in water."</i></p>')}},
-{t:'App 3: Vocabulary Codenames',h:function(){return showcase(6,'App 3: Vocabulary Codenames',['Paste 16 terms into a 4x4 grid: Red, Blue, Bystanders, one trap card.','One-click copy of each team\'s secret list for Zoom, Teams, or Meet chat.','Teacher Peek mode.'],'<p>Tell the Genie your real teaching hurdles. Asking for <i>"a button to copy secret words for chat"</i> builds the exact shortcut.</p>')}},
-{t:'App 4: Rotate & Relate',h:function(){return showcase(7,'App 4: Rotate &amp; Relate (Geometry)',['Students connect matching sides of nested triangles with red, blue, and yellow cords.','Check triggers lift, flip, rotate so the match is visible.'],'<p>Every web app has three pieces:</p><ul><li><b>Skeleton</b> (.html): what you see.</li><li><b>Clothes</b> (.css): colors and fonts.</li><li><b>Brain</b> (.js): math, dragging, animation.</li></ul>')}},
-{t:'App 5: FeedbackFlow',h:function(){return showcase(8,'App 5: FeedbackFlow (Grading Assistant)',['Rubric clicks and quick notes become a warm feedback paragraph.','Paste it straight into your gradebook.'],'<p><b>Wishes in stages.</b> Wish 1: build the rubric tool. Wish 2: add custom point values and a <code>Score: 10/12</code> summary.</p><p>Tell the Genie what to keep before asking for changes. Loop: prompt, build, test, refine.</p>')}},
+{t:'The Cave of Wonders',h:function(){return '<h2>The Cave of Wonders</h2><p style="color:var(--mute);margin-top:-.4rem">Nine builds are hidden here. Hover or focus a gem to hear its secret. Click to open it.</p><div class="cave-wrap static">'+caveHTML()+'</div>'}},
 {t:'The Golden Prompt Formula',h:function(){return '<h2>The Teacher\'s Golden Prompt Formula</h2><div class="grid g2"><div class="card"><span class="pill role">Role</span> <b>Who the Genie is</b><p>"Act as an educational web tool maker."</p></div><div class="card"><span class="pill aud">Audience</span> <b>Who it is for</b><p>"Build a tool for my 6th-grade Earth Science students."</p></div><div class="card"><span class="pill task">Function</span> <b>What it does</b><p>"Students click steps of the water cycle to see an animation."</p></div><div class="card"><span class="pill guard">Guardrails</span> <b>Safety &amp; portability</b><ul><li>Single standalone .html file.</li><li>No external image, font, or audio downloads.</li><li>100% student data privacy offline.</li></ul></div></div><p><button class="btn" data-copy="formula">Copy formula template</button></p>'}},
 {t:'Step-by-Step Guide',h:function(){return '<h2>Step-by-Step Hands-On Guide</h2><div class="grid g2">'+[['Copy the code','Click "Copy code" in your AI chat. Never drag-highlight hundreds of lines.'],['Open your starter file','Open the pre-made tool.html in Notepad or TextEdit.'],['Paste and save','Ctrl+S on Windows, Cmd+S on Mac.'],['Double-click to run','It opens in Chrome, Edge, or Safari, offline.']].map(function(s,i){return '<div class="card"><h3>Step '+(i+1)+': '+s[0]+'</h3><p>'+s[1]+'</p></div>'}).join('')+'</div>'}},
 {t:'Tinker Time',h:function(){return '<h2>Tinker Time</h2><div class="grid g2"><div class="static"><div class="led" id="led" role="timer">10:00</div><p style="text-align:center"><button class="btn alt" data-t="420">7 Min</button> <button class="btn alt" data-t="600">10 Min</button> <button class="btn" id="tgo">Play</button> <button class="btn alt" id="trs">Reset</button></p><p style="text-align:center"><button class="btn alt" id="dopen">View Prompting DO\'s &amp; DON\'Ts</button></p></div><div><div class="card"><h3>Emergency Troubleshooting</h3><p>Genie stopped typing? Type: <i>"Please keep going from where you stopped."</i></p><p>Use the "Copy code" button; you do not need to understand the code. Just test the buttons.</p></div><div class="card" style="margin-top:1rem"><h3>Debrief (last 3 to 5 minutes)</h3><ul><li>What did you ask the Genie to make?</li><li>Any surprises or misinterpretations?</li><li>How does it feel to build a tool in under 10 minutes?</li></ul></div></div></div><aside class="drawer" id="drawer" aria-label="Prompting tips"><button class="btn alt" id="dclose">Close</button><h3>DO</h3><ul class="do"><li>Be specific about screen size and buttons.</li><li>Ask for built-in sound effects from the computer\'s sound card.</li></ul><h3>DON\'T</h3><ul class="dont"><li>Say "make it pretty" without naming colors.</li><li>Panic if the Genie stops mid-code. Prompt: "Please continue from where you stopped."</li></ul></aside>'},init:timerInit},
@@ -98,30 +106,8 @@ function slideView(n,full){
   view.innerHTML='<section aria-label="Slide '+n+'">'+s.h()+'</section>';
   arm(view.firstChild,full);
   if(s.init)s.init();
-  hud.innerHTML='<button data-nav="-1" aria-label="Previous">&#8249;</button>'+SLIDES.map(function(x,i){return '<button class="dot'+(i+1===n?' on':'')+'" title="'+(i+1)+'. '+x.t+'" aria-label="Slide '+(i+1)+': '+x.t+'" data-go="'+(i+1)+'"></button>'}).join('')+'<button data-nav="1" aria-label="Next">&#8250;</button><span>Slide '+n+' of 12</span><span id="cnt"></span><a href="#app-1">App Hub</a>';
+  hud.innerHTML='<button data-nav="-1" aria-label="Previous">&#8249;</button>'+SLIDES.map(function(x,i){return '<button class="dot'+(i+1===n?' on':'')+'" title="'+(i+1)+'. '+x.t+'" aria-label="Slide '+(i+1)+': '+x.t+'" data-go="'+(i+1)+'"></button>'}).join('')+'<button data-nav="1" aria-label="Next">&#8250;</button><span>Slide '+n+' of '+SLIDES.length+'</span><span id="cnt"></span><a href="#slide-4">Cave of Wonders</a>';
   hudCount();document.title=s.t+' | The Classroom Genie';
-}
-function li(a){return '<ul>'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
-function annotate(t){
-  var lines=t.split('\n');
-  return lines.map(function(l){
-    var e=l.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-    if(/^Act as/.test(l))return '<span class="pill role">Role</span>'+e;
-    if(/^Build|^Wish/.test(l))return '<span class="pill aud">Audience</span>'+e;
-    if(/one|single|no outside|private|no downloads/i.test(l)&&/\.html|private|download|outside/i.test(l))return '<span class="pill guard">Guardrails</span>'+e;
-    if(l.trim())return '<span class="pill task">Task</span>'+e;
-    return e}).join('\n');
-}
-function appView(n,tab){
-  var a=APPS[n-1];tab=tab||'readme';hud.classList.add('hide');
-  var body='';
-  if(tab==='readme')body='<div class="card"><h3>What is this app?</h3><p>'+a.what+'</p><h3>How to use it in a virtual K-12 classroom</h3>'+li(a.use)+'<h3>What a non-coder learns from prompting it</h3>'+li(a.learn)+'</div>';
-  if(tab==='prompt')body='<div class="card"><p>Color badges mark the four Golden Formula pieces. Edit the text in <code>app.js</code> to match your <code>_Prompt.txt</code> file exactly.</p><pre id="pt">'+annotate(a.prompt)+'</pre><button class="btn" data-copytxt="'+encodeURIComponent(a.prompt)+'">Copy Prompt</button></div>';
-  if(tab==='files')body='<div class="card"><h3>File Blueprint</h3><div class="tree">'+a.tree.map(function(f){return '&#9500; <b>'+f[0]+'</b> <span style="color:var(--mute)">- '+f[1]+'</span>'}).join('<br>')+'</div><p>Simple apps live in one <code>.html</code> file so nothing gets lost or blocked. Bigger apps split into Skeleton (.html), Clothes (.css), Brain (.js), plus a PRD.md blueprint.</p></div>';
-  view.style.padding='0';
-  view.innerHTML='<div class="top"><a class="btn alt" href="#slide-'+a.slide+'">&larr; Return to Slide '+a.slide+'</a>'+APPS.map(function(x){return '<a class="p'+(x.n===n?' on':'')+'" href="#app-'+x.n+'">App '+x.n+': '+x.name+'</a>'}).join('')+'<span class="sp"></span><a class="btn" href="'+a.file+'" target="_blank" rel="noopener">&#128640; Launch Live App in New Tab</a></div><div style="padding:1.5rem clamp(1rem,5vw,5rem) 9rem"><h2>'+a.full+'</h2>'+(a.note?'<p>'+a.note+'</p>':'')+'<div class="tabs" role="tablist">'+[['readme','Classroom Readme'],['prompt','The Exact Wish Prompt'],['files','File Blueprint']].map(function(t){return '<button class="tab" role="tab" aria-selected="'+(t[0]===tab)+'" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>'+body+'</div>';
-  document.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){appView(n,b.dataset.tab)}});
-  document.title=a.name+' | The Classroom Genie';
 }
 
 /* ---------- Reveal engine: one talking point per click ---------- */
@@ -140,15 +126,41 @@ function arm(sec,all){
 }
 function hudCount(){var c=$('#cnt');if(c)c.textContent=st.u.length?'· '+st.i+'/'+st.u.length:''}
 function step(d){
-  if(busy||/^app-/.test(location.hash.slice(1)))return;
-  if(d>0){if(st.i<st.u.length){st.u[st.i++].classList.add('in');hudCount()}else if(cur<12)go(cur+1)}
+  if(busy||$('#modal').classList.contains('open'))return;
+  if(d>0){if(st.i<st.u.length){st.u[st.i++].classList.add('in');hudCount()}else if(cur<SLIDES.length)go(cur+1)}
   else{if(st.i>0){st.u[--st.i].classList.remove('in');hudCount()}else if(cur>1){full=true;go(cur-1)}}
 }
 
 /* ---------- Lamp and smoke transition ---------- */
 var LAMPSVG='<svg viewBox="0 0 200 120" aria-hidden="true" style="overflow:visible"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset=".55" stop-color="#f59e0b"/><stop offset="1" stop-color="#92400e"/></linearGradient><filter id="bl"><feGaussianBlur stdDeviation="1.6"/></filter></defs><g fill="none" stroke-linecap="round" filter="url(#bl)"><path class="w w1" stroke="#c4b5fd" stroke-width="4" d="M20 30C4 16 34 6 16-8S30-32 14-48"/><path class="w w2" stroke="#67e8f9" stroke-width="3" d="M22 28C36 14 6 4 24-10S8-34 26-50"/><path class="w w3" stroke="#f0abfc" stroke-width="3" d="M18 32C0 22 26 12 10 0S28-24 12-38"/></g><path d="M52 66C36 62 30 50 18 34L27 29C40 43 50 49 62 53Z" fill="url(#lg)"/><path d="M46 78C46 58 72 50 100 50S154 58 154 78 128 106 100 106 46 98 46 78Z" fill="url(#lg)" stroke="#fde68a" stroke-width="2"/><path d="M150 66C178 62 184 92 158 98" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"/><path d="M84 52C88 40 112 40 116 52Z" fill="#d97706"/><circle cx="100" cy="38" r="5" fill="#fde68a"/><rect x="78" y="104" width="44" height="8" rx="3" fill="#92400e"/><path d="M62 70C70 62 90 60 104 62" stroke="#fff" stroke-opacity=".5" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
+/* ---------- Procedural dune scape (bottom fifth of every screen) ---------- */
+function duneLayer(w,h,base,amp,color,seed){
+  var n=7,pts=[];
+  for(var i=0;i<=n;i++){
+    var x=i/n*w,y=base-Math.sin(i*1.7+seed)*amp*.4-Math.abs(Math.sin(seed*3+i*2.3))*amp*.6;
+    pts.push([x,y]);
+  }
+  var d='M0,'+h+' L'+pts[0][0]+','+pts[0][1];
+  for(var i=0;i<pts.length-1;i++){
+    var mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2;
+    d+=' Q'+pts[i][0]+','+pts[i][1]+' '+mx+','+my;
+  }
+  d+=' L'+w+','+pts[pts.length-1][1]+' L'+w+','+h+' Z';
+  return '<path d="'+d+'" fill="'+color+'"/>';
+}
+function buildDunes(){
+  var w=1600,h=260,seed=Math.random()*10;
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'
+    +duneLayer(w,h,h*.42,30,'rgba(46,16,101,.55)',seed)
+    +duneLayer(w,h,h*.62,34,'rgba(30,27,75,.72)',seed+2.1)
+    +duneLayer(w,h,h*.82,30,'rgba(9,10,16,.96)',seed+4.4)
+    +'</svg>';
+  var d=document.createElement('div');d.id='dunes';d.innerHTML=svg;document.body.appendChild(d);
+}
+buildDunes();
 var lamp=document.createElement('button');lamp.id='lamp';lamp.setAttribute('data-nav','1');lamp.setAttribute('aria-label','Rub the lamp: next point');lamp.innerHTML=LAMPSVG;document.body.appendChild(lamp);
 var cv=document.createElement('canvas');cv.id='smoke';document.body.appendChild(cv);var cx=cv.getContext('2d');
+var modal=document.createElement('div');modal.id='modal';document.body.appendChild(modal);
 var PAL=['46,16,101','30,27,75','88,28,135','109,40,217','22,18,60','14,116,144'];
 function build(){
   var W=cv.width=innerWidth,H=cv.height=innerHeight,R=Math.max(W,H)/5,r=lamp.getBoundingClientRect(),sp={x:r.left+r.width*.1,y:r.top+r.height*.27},ps=[];
@@ -180,15 +192,20 @@ function transition(swap){
 /* ---------- Routing & events ---------- */
 var cur=1;
 function render(){
-  var h=location.hash.replace('#',''),m;
+  var h=location.hash.replace('#',''),m=/^slide-(\d+)$/.exec(h);
   view.style.padding='';window.scrollTo(0,0);
-  if((m=/^app-([1-5])$/.exec(h)))return appView(+m[1]);
-  m=/^slide-(\d+)$/.exec(h);cur=m?Math.min(12,Math.max(1,+m[1])):1;
+  cur=m?Math.min(SLIDES.length,Math.max(1,+m[1])):1;
   var f=full;full=false;slideView(cur,f);
 }
 function route(){if(first){first=false;render()}else transition(render)}
-function go(n){n=Math.min(12,Math.max(1,n));location.hash='#slide-'+n}
+function go(n){n=Math.min(SLIDES.length,Math.max(1,n));location.hash='#slide-'+n}
+document.addEventListener('mouseover',function(e){var g=e.target.closest('.gem');if(g)setCap(TREASURES[+g.dataset.i])});
+document.addEventListener('mouseout',function(e){var g=e.target.closest('.gem');if(g)resetCap()});
+document.addEventListener('focusin',function(e){var g=e.target.closest('.gem');if(g)setCap(TREASURES[+g.dataset.i])});
+document.addEventListener('focusout',function(e){var g=e.target.closest('.gem');if(g)resetCap()});
 document.addEventListener('click',function(e){
+  var g=e.target.closest('.gem');if(g){openModal(+g.dataset.i);return}
+  var cl=e.target.closest('[data-close]');if(cl){closeModal();return}
   var t=e.target.closest('[data-nav],[data-go],[data-copy],[data-copytxt],[data-dl]');
   if(!t){if(!e.target.closest('button,a,input,textarea,summary,pre,.drawer,.top'))step(1);return}
   if(t.dataset.nav)step(+t.dataset.nav);
@@ -198,7 +215,8 @@ document.addEventListener('click',function(e){
   if(t.dataset.dl){var b=new Blob(['<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>My Classroom Tool</title>\n</head>\n<body>\n<!-- Paste the code from your AI chat here, replacing this whole file. -->\n</body>\n</html>\n'],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tool.html';document.body.appendChild(a);a.click();a.remove();toast('tool.html downloaded')}
 });
 document.addEventListener('keydown',function(e){
-  if(/^app-/.test(location.hash.slice(1))||/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  if(/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  if($('#modal').classList.contains('open')){if(e.key==='Escape')closeModal();return}
   if(e.target.tagName==='BUTTON'&&(e.key===' '||e.key==='Enter'))return;
   var k=e.key;
   if(k==='ArrowRight'||k===' '||k==='PageDown'){e.preventDefault();step(1)}
