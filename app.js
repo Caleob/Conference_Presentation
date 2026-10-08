@@ -3,8 +3,8 @@
 var $=function(s){return document.querySelector(s)};
 var view=$('#view'),hud=$('#hud');
 /* ---------- The safety line & wish starter (copied by buttons on the slides) ---------- */
-var SAFETY='Put everything in one single .html file. Don’t use anything from the internet (no outside pictures, fonts, sounds, or websites). Keep anything I type into the tool private on my computer.';
-var FORMULA='Make a tool for my [grade] [subject] students.\n[Describe what students see, what they click, and what happens when they do.]\n'+SAFETY;
+var SAFETY='Put everything in one single .html file. Don’t use outside internet links (use inline SVG for visuals and Web Audio for sound).';
+var FORMULA='Make a screen-share tool for my [grade] [subject] online class to run on my computer during live sessions.\n[Describe what appears on my screen, what I click or enter, and what students see and discuss.]\n'+SAFETY;
 var sbCode=''; // remembers whatever was pasted into the "See It & Save It" box between slides
 
 function toast(m){var t=$('#toast');t.textContent=m||'Copied ✓';t.classList.add('on');clearTimeout(toast.id);toast.id=setTimeout(function(){t.classList.remove('on')},2200)}
@@ -24,6 +24,7 @@ function saveFile(txt, filename, type){
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
   toast('✓ Saved ' + filename + '. Look in your Downloads folder.');
 }
+var saveTextFile = saveFile;
 
 /* ---------- Cave of Wonders: content lives in treasures.js ---------- */
 var TREASURES = window.TREASURES || [];
@@ -61,16 +62,19 @@ var CAPTION='Point at any gem for a quick peek. Click it to open the tool, see t
 function gemHTML(t,i,g,k){
   return '<button class="gem" data-i="'+i+'" style="--hue:'+g.hue+'deg;--dur:'+(4.5+k%3*.7)+'s;--delay:'+(k*.35)+'s" aria-label="'+escapeHTML(t.name+': '+t.short+' ('+t.grades+')')+'">'
     +'<svg class="gemi" viewBox="0 0 40 44" aria-hidden="true"><use href="#gem"></use></svg>'
-    +'<span class="gname">'+t.name+'</span>'
-    +(g.id!=='deep'?'<span class="gshort">'+t.short+'</span>':'')
+    +'<div class="gem-info">'
+      +'<span class="gname">'+t.name+'</span>'
+      +'<span class="gshort">'+t.short+'</span>'
+    +'</div>'
     +'</button>';
 }
 function caveHTML(){
   return GEMDEFS+'<div class="cave-groups">'+GROUPS.map(function(g){
     var k=0,gems=TREASURES.map(function(t,i){return t.group===g.id?gemHTML(t,i,g,k++):''}).join('');
+    var stackCls=(g.id==='deep'?'gem-stack-double':'gem-stack');
     return '<section class="cave-group cg-'+g.id+'" aria-label="'+escapeHTML(g.title)+'">'
       +'<h3><span aria-hidden="true">'+g.icon+'</span> '+g.title+'</h3><p class="gsub">'+g.sub+'</p>'
-      +'<div class="gem-row">'+gems+'</div></section>';
+      +'<div class="'+stackCls+'">'+gems+'</div></section>';
   }).join('')+'</div><div id="gemCaption" aria-live="polite">'+CAPTION+'</div>';
 }
 function setCap(t){
@@ -141,28 +145,70 @@ function closeModal(){
   document.body.style.overflow='';
 }
 
+function openNotepadModal(){
+  var m=$('#modal');
+  m.innerHTML='<div class="mback" data-close="1"></div>' +
+    '<div class="mdlg notepad-dialog" role="dialog" aria-modal="true" aria-labelledby="nptitle">' +
+      '<div class="mheader">' +
+        '<div class="mtop-row">' +
+          '<span class="mbadge">Offline Fallback</span>' +
+          '<button class="mclose" data-close="1" aria-label="Close">&times;</button>' +
+        '</div>' +
+        '<h3 id="nptitle">The Notepad Way: Save Any Code Offline</h3>' +
+        '<p class="mdesc">If you don’t have a preview window handy, you can turn Gemini code into a working web app using the text editor built into your computer:</p>' +
+      '</div>' +
+      '<div class="mbody notepad-modal-body">' +
+        '<div class="np-step-card">' +
+          '<span class="np-step-num">1</span>' +
+          '<div class="np-step-text"><b>Open Notepad or TextEdit</b><p>Open <b>Notepad</b> on Windows, or <b>TextEdit</b> on Mac. <i>(On a Mac, choose Format → Make Plain Text first.)</i></p></div>' +
+        '</div>' +
+        '<div class="np-step-card">' +
+          '<span class="np-step-num">2</span>' +
+          '<div class="np-step-text"><b>Paste the code</b><p>Paste the full code block copied from your Gemini chat into the empty window.</p></div>' +
+        '</div>' +
+        '<div class="np-step-card">' +
+          '<span class="np-step-num">3</span>' +
+          '<div class="np-step-text"><b>Save as an HTML file</b><p>Go to <b>File → Save As</b>. Give it a name ending in <b>.html</b> (like <code>quiz.html</code>). In Notepad, change <b>“Save as type”</b> to <b>All files (*.*)</b> so it doesn’t add .txt.</p></div>' +
+        '</div>' +
+        '<div class="np-step-card">' +
+          '<span class="np-step-num">4</span>' +
+          '<div class="np-step-text"><b>Double-click to open</b><p>Double-click your saved file in your Downloads or Desktop folder. It opens and runs in Chrome, Edge, or Safari—even completely offline!</p></div>' +
+        '</div>' +
+        '<div class="mtab-actions" style="justify-content:flex-end;margin-top:.8rem">' +
+          '<button class="btn" data-close="1">Got It ✓</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  m.classList.add('open');
+  document.body.style.overflow='hidden';
+  var closeBtn=m.querySelector('.mclose');
+  if(closeBtn) closeBtn.focus();
+}
+
 /* ---------- Slide building blocks ---------- */
 function card(icon,title,body,cls){
-  return '<div class="card'+(cls?' '+cls:'')+'">'+(icon?'<div class="cicon" aria-hidden="true">'+icon+'</div>':'')+'<h3>'+title+'</h3><p>'+body+'</p></div>';
+  return '<div class="card'+(cls?' '+cls:'')+'">'
+    +(icon?'<div class="card-head"><h3>'+title+'</h3><span class="cicon" aria-hidden="true">'+icon+'</span></div>':'<h3>'+title+'</h3>')
+    +'<p>'+body+'</p></div>';
 }
 function bubble(who,text,extra){
   return who==='you'
-    ? '<div class="card bubble you"><span class="who">You</span><p>'+text+'</p></div>'
-    : '<div class="card bubble genie"><span class="who">✨ Genie</span><p>'+text+'</p>'+(extra||'')+'</div>';
+    ? '<div class="card bubble you"><span class="who">👤 You</span><p>'+text+'</p></div>'
+    : '<div class="card bubble genie"><span class="who">✨ Gemini / Genie</span><p>'+text+'</p>'+(extra||'')+'</div>';
 }
 function phrases(icon,title,list){
   return '<div class="card"><div class="cicon" aria-hidden="true">'+icon+'</div><h3>'+title+'</h3><div class="phrases">'
     +list.map(function(p){return '<span class="phrase">'+p+'</span>'}).join('')+'</div></div>';
 }
 
-/* Ready-to-borrow wishes. The safety line is added automatically when copied. */
+/* Ready-to-borrow wishes (teacher screen-share focused). The safety line is added automatically when copied. */
 var WISHES=[
-  ['Grades K–2 · Reading','Make a game for my kindergarten students. Show one big letter and three emoji pictures. Students click the picture that starts with that letter’s sound. Cheer when they get it right, and let them try again if they don’t.'],
-  ['Grades 3–5 · Math','Make a fraction game for my 4th graders. Show two fraction bars side by side, and students click the bigger fraction. Keep score, and show a new pair after each answer.'],
-  ['Grades 6–8 · ELA','Make a sentence unscramble game for my 7th graders. Show the words of a sentence in a mixed-up order. Students drag the words into the right order and click Check. Let me paste in my own sentences.'],
-  ['Science','Make a water cycle explorer for my 6th grade science students. Show a simple picture of the water cycle. When students click each stage, play a short animation and show one sentence explaining it.'],
-  ['Social Studies','Make a “Who Said It?” game for my 8th graders. Show a famous quote and four names to choose from. Let me paste in my own quotes and names, and show the right answer after each guess.'],
-  ['Just for You','Make a group maker for me. I paste in my class list, and it shuffles students into groups of 4. Let me drag names between groups, and add a button that copies the groups so I can paste them into chat.']
+  ['Grades K–2 · Reading','Make a phonics warm-up tool to screen share with my kindergarten online class. Display one giant letter and three colorful picture choices. As students call out answers in mic or chat, I click the choice: cheer and chime for correct, gentle wiggle if incorrect so we can try again.'],
+  ['Grades 3–5 · Math','Make an interactive fraction comparison tool to screen share with my 4th graders. Show two large fraction bars side by side. I click the fraction my students vote for: reveal the answer with a visual overlay, play a chime, track our class streak, and load a new pair.'],
+  ['Grades 6–8 · ELA','Make a sentence unscramble warm-up to screen share in live class. Show words of a sentence mixed up in large, clear font. As students direct me in chat, let me drag words into order on screen and click Check. Include a box for me to paste my own sentences.'],
+  ['Science','Make an interactive water cycle diagram to screen share in my 6th grade science class. When I click on Evaporation, Condensation, Precipitation, or Collection, play a smooth visual animation and display 2 key bullet points for our live discussion.'],
+  ['Social Studies','Make a quote trivia game to screen share with my 8th grade history class. Display a historical quote and four large answer buttons. When students vote in poll/chat and I click their choice, reveal whether it’s correct along with a 2-sentence background fact.'],
+  ['Live Classroom Helper','Make a live breakout group maker for my online class. I paste my student roster, and it automatically sorts them into groups of 4 on screen. Let me drag student names between groups live on screen, and provide a button to copy formatted group lists directly into meeting chat.']
 ];
 
 /* ---------- Slides ---------- */
@@ -172,7 +218,8 @@ var SLIDES=[
   +'<p class="hero-sub">Make your own classroom tools with AI. No coding required.</p>'
   +'<div class="card glow hero-card"><p>AI is like a genie: it grants your wish <b>exactly</b> the way you say it.</p>'
   +'<p>The good news? <b>This genie gives you unlimited wishes.</b> If the first try isn’t quite right, you just wish again.</p></div>'
-  +'<div class="hero-foot"><p class="hero-meta">Pearson Virtual Schools Staff Conference · Caleob King</p>'
+  +'<div class="hero-foot static">'
+  +'<p class="hero-meta">Pearson Virtual Schools Staff Conference · Caleob King</p>'
   +'<p class="hero-cue">Press Space, the right arrow, or rub the lamp to begin.</p></div>'
   +'</div>'}},
 
@@ -187,9 +234,9 @@ var SLIDES=[
 
 {t:'How It Works: The Genie Loop',h:function(){return '<h2>How It Works: The Genie Loop</h2>'
   +'<div class="lead">Making a tool is a conversation, not a test. It goes around and around like this:</div>'
-  +'<div class="grid g4 loop">'
+  +'<div class="grid loop">'
   +card('💭','1. Imagine','Think of one small thing that would make your week easier.<em>“I wish I had a fair way to call on students.”</em>')
-  +card('🪄','2. Wish','Type it into an AI chat (Gemini, ChatGPT, Copilot, or whichever one your school allows) in plain, everyday words.<em>“Make a spinning wheel that picks a name from my class list.”</em>')
+  +card('🪄','2. Wish','Type it into Gemini (our school-approved AI tool) in plain, everyday words.<em>“Make a spinning wheel that picks a name from my class list.”</em>')
   +card('👀','3. Try','The AI builds it. Open it and click around like a student would.<em>“It works! But it picked the same kid twice.”</em>')
   +card('🔁','4. Tweak','Tell the AI what to change, then try again. Repeat as often as you like.<em>“Take each name off the wheel after it’s picked.”</em>')
   +'</div>'
@@ -197,7 +244,7 @@ var SLIDES=[
 
 {t:'Watch a Wish Grow',h:function(){return '<h2>Watch a Wish Grow</h2>'
   +'<div class="lead">Here’s what a typical conversation looks like (shortened a bit).</div>'
-  +'<div class="chat">'
+  +'<div class="chat chat-grid">'
   +bubble('you','Make a spinning wheel that picks a random name from a class list I paste in.')
   +bubble('genie','Here’s your wheel! Paste your names in the box and click Spin.','<span class="chip">📄 spin-wheel.html</span>')
   +bubble('you','Love it! But it picked Jordan twice in a row. Can you take each name off after it’s picked?')
@@ -209,63 +256,115 @@ var SLIDES=[
   +'<a class="btn" href="Example_1/WheelPicker.html" target="_blank" rel="noopener">🎡 Try a finished wheel</a></div>'}},
 
 {t:'The Cave of Wonders',h:function(){return '<h2>The Cave of Wonders</h2>'
-  +'<div class="lead">Twelve real tools, each one made by describing it to AI. The top two rows are for every teacher.</div>'
+  +'<div class="lead">Twelve real tools, each one made by describing it to AI. Click any gem to explore:</div>'
   +'<div class="cave-wrap static">'+caveHTML()+'</div>'}},
 
-{t:'Three Wishes to Make Every Time',h:function(){return '<h2>Three Wishes to Make Every Time</h2>'
-  +'<div class="lead">Add these to every wish, and your tools will be easy to keep, hard to block, and safe for students.</div>'
-  +'<div class="grid g2">'
-  +card('📄','“Put everything in one file.”','One file is easy to save, email, and open later, just like a document. Double-click it and it opens.')
-  +card('📴','“Don’t use anything from the internet.”','The school filter has nothing to block, and your tool still works when the Wi-Fi doesn’t.')
-  +card('🔒','“Keep what I type private on my computer.”','Class lists and scores you type into the finished tool stay right on your computer.')
-  +card('🙈','And one rule for you: keep real names out of the AI chat.','The chat is where you <em>describe</em> the tool. Add your real class list later, inside the finished tool.','you-rule')
+{t:'Two Rules—and When to Break Them',h:function(){return '<h2>Two Golden Rules — And When to Break Them</h2>'
+  +'<div class="lead">Start every wish with these two guardrails. As your tools grow, here is when and how to bend them:</div>'
+  +'<div class="grid rules-grid">'
+  +'<div class="card rule-card">'
+    +'<div class="card-head"><h3>1. “Put everything in one single file”</h3><span class="pill guard">Rule #1</span></div>'
+    +'<div class="rule-body">'
+      +'<p class="rule-why"><b>Why start here:</b> One file is foolproof. Double-click it and it opens in any browser. No accounts, no installs, easy to email or keep in a folder.</p>'
+      +'<div class="break-box">'
+        +'<span class="break-tag">🚀 When to break it (Advanced Move)</span>'
+        +'<p>Break this rule when your tool gets <b>too big, complex, or slow</b> for one single document.</p>'
+        +'<p class="slow-explain">Websites are actually built from three separate ingredients:</p>'
+        +'<ul class="tri-list">'
+          +'<li><b>HTML</b> = <i>What is there</i> (the text, buttons, inputs, and structure)</li>'
+          +'<li><b>CSS</b> = <i>How it looks</i> (the colors, fonts, styling, and layout)</li>'
+          +'<li><b>JavaScript (JS)</b> = <i>What it does</i> (the math, clicks, animations, and logic)</li>'
+        +'</ul>'
+        +'<p class="break-note">If Gemini gives you a ZIP with separate .html, .css, and .js files, don’t panic! That’s just organizing the closet into three tidy drawers.</p>'
+      +'</div>'
+    +'</div>'
   +'</div>'
-  +'<div class="banner">Don’t memorize these. They’re already built into the copy-and-paste wish starter on the next slide.</div>'}},
+  +'<div class="card rule-card">'
+    +'<div class="card-head"><h3>2. “Don’t use anything from the internet”</h3><span class="pill guard">Rule #2</span></div>'
+    +'<div class="rule-body">'
+      +'<p class="rule-why"><b>Why start here:</b> School filters have nothing to block, and your tool works 100% offline even if classroom Wi-Fi cuts out.</p>'
+      +'<div class="break-box">'
+        +'<span class="break-tag">🎨 How to handle assets &amp; libraries</span>'
+        +'<p>Any assets your tool needs should be computer-generated right inside the file:</p>'
+        +'<ul class="tri-list">'
+          +'<li><b>Visuals:</b> Ask for <i>inline SVG graphics</i> (drawn with math, not outside image links).</li>'
+          +'<li><b>Audio:</b> Ask for <i>Web Audio API chimes &amp; ticks</i> (synthesized by your browser).</li>'
+        +'</ul>'
+        +'<p class="break-note"><b>What if you see "Tailwind"?</b> It’s an external styling link. It is generally safe and makes tools look modern and beautiful! But if your filter blocks it or you want 100% offline tools, insist on: <i>“Use vanilla HTML, CSS, and JS only.”</i></p>'
+      +'</div>'
+    +'</div>'
+  +'</div>'
+  +'</div>'
+  +'<div class="banner">🔒 <b>Privacy Note:</b> We have a <b>0-PII policy with Gemini</b>, so you can safely use classroom curriculum and lesson materials directly in your prompts!</div>'}},
 
-{t:'Your Wish Starter',h:function(){return '<h2>Your Wish Starter</h2>'
-  +'<div class="lead">Fill in the blanks, paste it into your AI chat, and you’ve made your first wish.</div>'
-  +'<div class="grid g2">'
-  +'<div class="card starter">'
-  +'<div class="part"><span class="pill aud">1 · Who it’s for</span><p>Make a tool for my <mark>[grade] [subject]</mark> students.</p></div>'
-  +'<div class="part"><span class="pill task">2 · What happens on screen</span><p><mark>[Describe what students see, what they click, and what happens when they do.]</mark></p></div>'
-  +'<div class="part"><span class="pill guard">3 · The safety line (same every time)</span><p>'+SAFETY+'</p></div>'
-  +'<button class="btn" data-copy="formula">📋 Copy the wish starter</button>'
+{t:'Your Wish Starter & Borrowed Wishes',h:function(){return '<h2>Your Wish Starter &amp; Borrowed Wishes</h2>'
+  +'<div class="lead">Built for live online teaching: run on your computer and shared via screen share. Copy the general formula OR borrow a ready-made wish below:</div>'
+  +'<div class="wish-combo static">'
+    +'<div class="card starter-card">'
+      +'<div class="starter-head">'
+        +'<div><span class="pill role">Teacher Screen-Share Formula</span> <span class="dim">Fill in the blanks and paste into Gemini</span></div>'
+        +'<button class="btn" data-copy="formula">📋 Copy Wish Formula</button>'
+      +'</div>'
+      +'<div class="formula-parts">'
+        +'<div class="part"><span class="pill aud">1 · Who &amp; Where</span><p>Make a screen-share tool for my <mark>[grade] [subject]</mark> online class to run on my computer during live sessions.</p></div>'
+        +'<div class="part"><span class="pill task">2 · Live Screen Share</span><p><mark>[Describe what appears on my screen, what I click or enter, and what students see and discuss.]</mark></p></div>'
+        +'<div class="part"><span class="pill guard">3 · Single-File Guardrail</span><p>'+SAFETY+'</p></div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="borrow-header">'
+      +'<h3>✨ Ready-to-Borrow Wishes (Screen-Share Ready)</h3>'
+      +'<span class="dim">Click any button to copy the prompt + single-file rule straight to your clipboard</span>'
+    +'</div>'
+    +'<div class="grid g3 wishbank static">'
+    +WISHES.map(function(w){
+      return '<div class="card wish"><div class="wish-top"><span class="pill">'+w[0]+'</span>'
+        +'<button class="btn alt btn-sm" data-copytxt="'+encodeURIComponent(w[1]+'\n\n'+SAFETY)+'">📋 Copy</button></div>'
+        +'<p>'+w[1]+'</p></div>';
+    }).join('')
+    +'</div>'
   +'</div>'
-  +'<div class="card example"><span class="pill">Here’s one filled in</span>'
-  +'<p>Make a tool for my <b>1st grade reading</b> students. <b>Show a word with one letter missing and three letter buttons underneath. When a student clicks the right letter, the word fills in and a happy sound plays. If they pick the wrong one, the button gives a gentle wiggle so they can try again.</b></p>'
-  +'<p class="dim">+ the safety line</p></div>'
-  +'</div>'
-  +'<div class="banner"><b>Try it right now:</b> copy the starter (or borrow a wish from the next slide), paste it into your AI chat, and press Enter. While it works, we’ll look at how to see it and save it.</div>'}},
-
-{t:'Borrow a Wish',h:function(){return '<h2>Borrow a Wish</h2>'
-  +'<div class="lead">Not sure where to start? Copy one of these, paste it into your AI chat, then make it your own. The safety line is added for you when you copy.</div>'
-  +'<div class="grid g3 wishbank static">'
-  +WISHES.map(function(w){
-    return '<div class="card wish"><span class="pill">'+w[0]+'</span><p>'+w[1]+'</p>'
-      +'<button class="btn alt" data-copytxt="'+encodeURIComponent(w[1]+'\n\n'+SAFETY)+'">📋 Copy this wish</button></div>';
-  }).join('')
-  +'</div>'}},
+  +'<div class="banner"><b>Take a few minutes:</b> Copy the formula or one of these wishes right now, paste it into Gemini, and test the result! We’ll gather feedback and tweak together.</div>'}},
 
 {t:'See It & Save It',h:function(){return '<h2>See It &amp; Save It</h2>'
-  +'<div class="lead">The AI will hand you a block of code. You don’t need to read it. Just copy, paste, and look.</div>'
-  +'<div class="grid g3 steps">'
-  +card('📋','1. Copy','In your AI chat, find the code box and click its <b>Copy</b> button. No need to highlight anything.')
-  +card('▶️','2. Paste &amp; look','Paste it into the box below and click <b>Show Me</b>. Your tool appears on the right.')
-  +card('💾','3. Save','Like it? Click <b>Save My Tool</b>. You’ll get a file you can double-click anytime, even offline.')
+  +'<div class="lead">Gemini will hand you a block of code. You don’t need to read it. Just copy, paste, and look.</div>'
+  +'<div class="sb-steps-row">'
+    +'<div class="sb-step"><span class="s-badge">1</span><div class="s-text"><b>Copy</b><span class="s-desc">Click "Copy" on Gemini code box</span></div></div>'
+    +'<div class="sb-step-arrow">➜</div>'
+    +'<div class="sb-step"><span class="s-badge">2</span><div class="s-text"><b>Paste &amp; Show</b><span class="s-desc">Paste below and click "Show Me"</span></div></div>'
+    +'<div class="sb-step-arrow">➜</div>'
+    +'<div class="sb-step"><span class="s-badge">3</span><div class="s-text"><b>Save</b><span class="s-desc">Click "Save My Tool" for .html file</span></div></div>'
   +'</div>'
   +'<div class="sandbox static">'
-  +'<div class="sb-left"><label for="sb-code" class="sb-label">Paste your code here</label>'
-  +'<textarea id="sb-code" spellcheck="false" placeholder="Click here, then press Ctrl+V (Windows) or Cmd+V (Mac)"></textarea>'
-  +'<div class="sb-row"><label for="sb-name">Name your tool:</label><input id="sb-name" value="my-classroom-tool" autocomplete="off"><span class="dim">.html</span></div>'
-  +'<div class="sb-row"><button class="btn" id="sb-run">▶ Show Me</button><button class="btn" id="sb-save">💾 Save My Tool</button><button class="btn alt" id="sb-clear">Clear</button></div></div>'
-  +'<div class="sb-right"><span class="sb-label">Your tool</span><iframe id="sb-frame" title="Preview of your tool" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-downloads"></iframe></div>'
+    +'<div class="sb-left">'
+      +'<div class="sb-top-bar">'
+        +'<label for="sb-code" class="sb-label">Paste your code here:</label>'
+        +'<button class="btn alt btn-sm" id="sb-clear">Clear</button>'
+      +'</div>'
+      +'<textarea id="sb-code" spellcheck="false" placeholder="Click here, then press Ctrl+V (Windows) or Cmd+V (Mac) to paste code..."></textarea>'
+      +'<div class="sb-bottom-bar">'
+        +'<div class="sb-name-group">'
+          +'<label for="sb-name">Tool name:</label>'
+          +'<input id="sb-name" value="my-classroom-tool" autocomplete="off">'
+          +'<span class="dim">.html</span>'
+        +'</div>'
+        +'<div class="sb-action-btns">'
+          +'<button class="btn" id="sb-run">▶ Show Me</button>'
+          +'<button class="btn sb-save-btn" id="sb-save">💾 Save My Tool</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="sb-right">'
+      +'<div class="sb-preview-header">'
+        +'<span class="sb-label">Live Preview</span>'
+        +'<span class="dim">Fully interactive preview</span>'
+      +'</div>'
+      +'<iframe id="sb-frame" title="Preview of your tool" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-downloads"></iframe>'
+    +'</div>'
   +'</div>'
-  +'<div class="tip">💡 <b>Shortcut:</b> many AI chats can show your tool right inside the chat. Look for a <b>Preview</b>, <b>Canvas</b>, or <b>Artifact</b> button.</div>'
-  +'<details class="planb static"><summary>No preview box handy? Here’s the Notepad way.</summary><ol>'
-  +'<li>Open <b>Notepad</b> (Windows) or <b>TextEdit</b> (Mac). On a Mac, first choose <b>Format → Make Plain Text</b>.</li>'
-  +'<li>Paste the code.</li>'
-  +'<li>Save it with a name that ends in <b>.html</b>, like <b>quiz.html</b>. In Notepad, set “Save as type” to <b>All files</b> so it doesn’t turn into quiz.html.txt.</li>'
-  +'<li>Double-click the saved file. It opens in your web browser.</li></ol></details>'},init:sandboxInit},
+  +'<div class="sb-footer-bar">'
+    +'<div class="sb-tip">💡 <b>Shortcut:</b> Gemini often has a built-in <b>Canvas / Artifact</b> preview button right in the chat!</div>'
+    +'<button class="btn alt np-open-btn" id="btn-notepad" data-open-notepad="1">📝 No preview box handy? The Notepad Way</button>'
+  +'</div>'},init:sandboxInit},
 
 {t:'Magic Words for Tweaking',h:function(){return '<h2>Magic Words for Tweaking</h2>'
   +'<div class="lead">Your first version is a rough draft. Talk to the AI like a helpful colleague: say what you see, and what you’d like instead.</div>'
@@ -568,7 +667,7 @@ function slideView(n,full){
   view.innerHTML='<section aria-label="Slide '+n+'">'+s.h()+'</section>';
   arm(view.firstChild,full);
   if(s.init)s.init();
-  hud.innerHTML='<button data-nav="-1" aria-label="Previous">&#8249;</button>'+SLIDES.map(function(x,i){return '<button class="dot'+(i+1===n?' on':'')+'" title="'+(i+1)+'. '+x.t+'" aria-label="Slide '+(i+1)+': '+x.t+'" data-go="'+(i+1)+'"></button>'}).join('')+'<button data-nav="1" aria-label="Next">&#8250;</button><span>Slide '+n+' of '+SLIDES.length+'</span><span id="cnt"></span><a href="#slide-4">Cave of Wonders</a>';
+  hud.innerHTML='<button data-nav="-1" aria-label="Previous">&#8249;</button>'+SLIDES.map(function(x,i){return '<button class="dot'+(i+1===n?' on':'')+'" title="'+(i+1)+'. '+x.t+'" aria-label="Slide '+(i+1)+': '+x.t+'" data-go="'+(i+1)+'"></button>'}).join('')+'<button data-nav="1" aria-label="Next">&#8250;</button><span>Slide '+n+' of '+SLIDES.length+'</span><span id="cnt"></span><a href="#slide-'+CAVE_SLIDE+'">Cave of Wonders</a>';
   hudCount();document.title=s.t+' | The Classroom Genie';
 }
 
@@ -666,6 +765,7 @@ document.addEventListener('mouseout',function(e){var g=e.target.closest('.gem');
 document.addEventListener('focusin',function(e){var g=e.target.closest('.gem');if(g)setCap(TREASURES[+g.dataset.i])});
 document.addEventListener('focusout',function(e){var g=e.target.closest('.gem');if(g)resetCap()});
 document.addEventListener('click',function(e){
+  var np=e.target.closest('#btn-notepad,[data-open-notepad]');if(np){openNotepadModal();return}
   var g=e.target.closest('[data-i]');if(g&&g.classList.contains('gem')){openModal(+g.dataset.i);return}
   var cl=e.target.closest('[data-close]');if(cl){closeModal();return}
   var mt=e.target.closest('[data-mtab]');
