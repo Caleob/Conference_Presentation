@@ -83,8 +83,17 @@ li::before{content:"\2726";position:absolute;left:0;color:var(--gold);text-shado
 
 /* ===== Cave of Wonders ===== */
 .cave-wrap p{font-size:1.35rem}
-.cave-stage{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:1rem;
-  margin:1.4rem 0 .8rem;min-height:min(52vh,460px)}
+.cave-groups{display:flex;flex-direction:column;gap:1.5rem;margin:1.4rem 0 .8rem;min-height:min(52vh,460px);overflow-y:auto;padding-right:8px;}
+.cave-groups::-webkit-scrollbar{width:6px}
+.cave-groups::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
+.cave-group{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:1.2rem}
+.cave-group h3{margin:0 0 .2rem;font-size:1.3rem;color:var(--gold);display:flex;align-items:center;gap:.5rem}
+.cave-group .gsub{margin:0 0 1rem;font-size:.95rem;color:var(--mute)}
+.gem-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.cg-helpers{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08)}
+.cg-games{border-color:rgba(45,212,191,.3);background:rgba(45,212,191,.08)}
+.cg-deep{opacity:0.85}
+.cg-deep h3{color:var(--mute)}
 .gem{position:relative;background:none;border:0;padding:.5rem;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;cursor:pointer;color:var(--txt)}
 .gemi{width:clamp(60px,8vw,92px);display:block;filter:hue-rotate(var(--hue)) drop-shadow(0 0 12px rgba(251,191,36,.45));
@@ -92,14 +101,15 @@ li::before{content:"\2726";position:absolute;left:0;color:var(--gold);text-shado
 @keyframes gemfloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-16px) rotate(4deg)}}
 .gname{font-size:clamp(1.05rem,2.1vw,1.4rem);font-weight:700;color:var(--gold);
   text-align:center;max-width:12rem;text-shadow:0 1px 8px #000;transition:color .2s,transform .2s}
+.gshort{font-size:.9rem;color:var(--mute);text-align:center;max-width:13rem;line-height:1.3;margin-top:-.3rem;}
 .gem:hover .gname,.gem:focus-visible .gname{color:#fde68a;transform:translateY(-2px)}
 .gem:hover .gemi,.gem:focus-visible .gemi{filter:hue-rotate(var(--hue)) drop-shadow(0 0 22px rgba(251,191,36,.95));transform:scale(1.15)}
 .gem:focus-visible{outline:none}
 .gem:focus-visible .gemi{outline:3px solid var(--cyan);outline-offset:4px;border-radius:50%}
 #gemCaption{min-height:2.8rem;text-align:center;color:var(--mute);border-top:1px solid var(--line);padding-top:.9rem;font-size:1.3rem}
 #gemCaption b{color:var(--gold)}
-@media(max-width:680px){.cave-stage{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:420px){.cave-stage{grid-template-columns:1fr}}
+@media(max-width:680px){.gem-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:420px){.gem-row{grid-template-columns:1fr}}
 
 /* ===== Treasure modal ===== */
 #modal{position:fixed;inset:0;z-index:60;display:none;overflow-y:auto;padding:1.5rem 1rem}
